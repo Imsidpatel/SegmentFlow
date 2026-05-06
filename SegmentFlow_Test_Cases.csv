@@ -1,0 +1,19 @@
+Category,Test Case ID,Feature,Scenario,Expected Result
+Security & Multi-Tenancy,SEC-01,Authentication,Attempt to access a protected route without passing a JWT token in the header.,API returns 401 Unauthorized.
+Security & Multi-Tenancy,SEC-02,Tenant Isolation,A logged-in User from Company A explicitly passes a customer_id belonging to Company B in an API request.,API returns 403 Forbidden or 404 Not Found (Row-Level Security blocks the query).
+Security & Multi-Tenancy,SEC-03,Data Leakage,Run the ML Clustering algorithm for Company A.,The algorithm strictly queries and processes data where company_id = A. No Company B data is used to train the K-Means model.
+Security & Multi-Tenancy,SEC-04,Token Expiration,Attempt to upload a CSV file using a JWT token that expired 5 minutes ago.,API returns 401 Unauthorized.
+Data Ingestion & ETL Pipeline,ETL-01,Valid Upload,"Upload a valid transactions.csv containing the required columns (customer_id, date, amount).",API returns 200 OK; background worker starts processing; rows are inserted into the database.
+Data Ingestion & ETL Pipeline,ETL-02,Missing Columns,Upload a CSV file missing the critical amount column.,API returns 422 Unprocessable Entity specifying which column is missing.
+Data Ingestion & ETL Pipeline,ETL-03,Data Cleaning,Upload a CSV containing negative transaction amounts (refunds) and blank customer IDs.,The Pandas ETL pipeline successfully filters out/handles the negative values and drops/flags rows with missing IDs.
+Data Ingestion & ETL Pipeline,ETL-04,Large File Handling,Upload a 500MB CSV file containing 5 million transaction rows.,System successfully utilizes chunking/streaming to ingest the file without throwing out-of-memory (OOM) errors.
+Machine Learning (RFM & Churn Engine),ML-01,RFM Calculation,Calculate RFM metrics for a mock customer who bought 1 item for $100 yesterday.,"System accurately computes Recency = 1, Frequency = 1, Monetary = 100 before standardizing."
+Machine Learning (RFM & Churn Engine),ML-02,Skewed Data Handling,"Feed the K-Means algorithm a dataset where 1 user spent $50,000 and 99 users spent $10.",The system successfully applies a Log-Transformation to the Monetary data so the algorithm isn't entirely broken by the outlier.
+Machine Learning (RFM & Churn Engine),ML-03,Churn Prediction,Pass a customer profile with High Recency (hasn't bought in a year) and Low Frequency to the Random Forest model.,Model assigns a churn_probability score of > 85%.
+Machine Learning (RFM & Churn Engine),ML-04,Model Update,Trigger the ML pipeline after new data is ingested.,Customer segments and churn probabilities are recalculated and updated in the database.
+Next Best Action (NBA) Engine,NBA-01,Champion Nudge,"Customer is classified as Champions (High Spend, Recent Buyer).",The engine assigns the Invite to VIP Loyalty Program nudge.
+Next Best Action (NBA) Engine,NBA-02,At-Risk Nudge,"Customer is classified as At Risk (High Spend, Not Recent).",The engine assigns the Send 'We Miss You' 25% Discount nudge.
+Next Best Action (NBA) Engine,NBA-03,Hibernating Nudge,"Customer is classified as Hibernating (Low Spend, Not Recent).",The engine assigns the Don't spend ad dollars; trigger automated email only nudge.
+API UI & Reporting Integration,API-01,Pagination,Call GET /api/customers?limit=50&page=2.,The API returns exactly 50 customer records corresponding to the second page of results.
+API UI & Reporting Integration,API-02,PDF Generation,User clicks Export Executive Summary on the frontend.,"API returns 200 OK with an application/pdf binary stream; PDF contains accurate, up-to-date metrics."
+API UI & Reporting Integration,UI-01,3D Visualization,The frontend receives K-Means clustering JSON payload.,The React SPA successfully renders the 3D RFM scatter plot without UI lag or crashing.
